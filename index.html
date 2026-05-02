@@ -22,27 +22,21 @@
         .card {
             background: rgba(255,255,240,0.95);
             border-radius: 3rem;
-            padding: 2rem 1.5rem 2rem 1.5rem;
+            padding: 2rem 1.5rem;
             max-width: 700px;
             width: 100%;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.5);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.4);
             text-align: center;
-            backdrop-filter: blur(2px);
-            transition: all 0.2s;
         }
         h1 {
             color: #1e4a2f;
             font-size: 1.6rem;
             margin-bottom: 0.5rem;
-            border-right: 5px solid #f4a261;
-            padding-right: 1rem;
-            display: inline-block;
         }
         .sub {
             color: #2c6e3c;
             margin-bottom: 2rem;
             font-weight: 500;
-            font-size: 1rem;
             background: #e9f5e6;
             display: inline-block;
             padding: 0.3rem 1rem;
@@ -58,21 +52,17 @@
             background: #fef9e6;
             border-radius: 2rem;
             padding: 1rem 0.5rem;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.08);
             border-bottom: 4px solid #f4a261;
         }
         .stat-number {
             font-size: 2.2rem;
             font-weight: 800;
             color: #1e3a2f;
-            line-height: 1.2;
             font-family: monospace;
-            letter-spacing: 2px;
         }
         .stat-label {
             font-size: 0.85rem;
             color: #5a4a2e;
-            text-transform: uppercase;
             font-weight: 600;
             margin-top: 6px;
         }
@@ -111,24 +101,14 @@
             .grid-stats { gap: 0.8rem; }
             h1 { font-size: 1.2rem; }
         }
-        .btn-reset {
-            background: none;
-            border: none;
-            font-size: 0.7rem;
-            color: #aa7a4a;
-            cursor: pointer;
-            margin-top: 10px;
-            text-decoration: underline;
-            opacity: 0.6;
-        }
     </style>
 </head>
 <body>
 <div class="card">
     <h1>🚭 قهرمانی بدون دود</h1>
-    <div class="sub">از ۱۱ شب ۱ می ۲۰۲۶ • به وقت ایران</div>
+    <div class="sub">شروع ترک: ۱ می ۲۰۲۶ - ساعت ۲۳:۰۰ ایران</div>
 
-    <div class="grid-stats" id="statsGrid">
+    <div class="grid-stats">
         <div class="stat-box"><div class="stat-number" id="years">۰</div><div class="stat-label">سال ترک</div></div>
         <div class="stat-box"><div class="stat-number" id="weeks">۰</div><div class="stat-label">هفته</div></div>
         <div class="stat-box"><div class="stat-number" id="days">۰</div><div class="stat-label">روز</div></div>
@@ -136,77 +116,71 @@
     </div>
 
     <div class="live-time">
-        🕊️ همین حالا گذشت: <span id="totalHours">۰</span> ساعت پاک زیستن
+        🕊️ کل ساعتهای پاک: <span id="totalHours">۰</span> ساعت
     </div>
     <div class="quote">
         💪 ۱۳ سال سیگار کشیدی، اما از ۱ می ۲۰۲۶ هر ثانیه ریه‌هایت نفس آزادی می‌کشند.
     </div>
     <footer>
-        ⏱️ بروزرسانی لحظه‌ای | هر ساعت و روزی که می‌گذرد، بدنت قوی‌تر می‌شود
-        <button class="btn-reset" id="forceRefreshBtn" title="بروزرسانی دستی">↻</button>
+        ⏱️ بروزرسانی لحظه‌ای | هر ثانیه بدون دود، یک پیروزی است
     </footer>
 </div>
 
 <script>
-    // تاریخ شروع: ۱ می ۲۰۲۶ - ساعت ۲۳:۰۰:۰۰ به وقت ایران (UTC+3:30)
-    // ایران در May 2026 ساعت رسمی UTC+3:30 (بدون تغییر فصلی در آن تاریخ فرض می‌کنیم)
-    // برای دقت، تایم استارت را به UTC تبدیل می‌کنیم:
-    //   May 1 2026, 23:00 IRST = 2026-05-01T19:30:00Z (چون IRST = UTC+3:30)
-    const START_UTC = new Date(Date.UTC(2026, 4, 1, 19, 30, 0));  // 4 = May (ماه در جاوااسکریپت از 0 شروع می‌شه)
-    
-    function formatNumber(num) {
-        return Math.floor(num);
+    // تاریخ و ساعت شروع: ۱ می ۲۰۲۶ ساعت ۲۳:۰۰ به وقت ایران (UTC+3:30)
+    // ساخت تاریخ دقیق به روش قابل اعتماد:
+    function getStartTimeInIran() {
+        // تاریخ به صورت UTC+3:30 ساخته می‌شود
+        // 1 May 2026, 23:00 IRST = 2026-05-01T19:30:00Z
+        return new Date(Date.UTC(2026, 4, 1, 19, 30, 0));
     }
-
+    
+    const START_DATE = getStartTimeInIran();
+    
     function updateCounter() {
-        const now = new Date(); // زمان جاری دستگاه کاربر (محلی)
-        const nowUTC = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)); // تبدیل به UTC خام
-        // اختلاف بر حسب میلی‌ثانیه
-        let diffMs = nowUTC - START_UTC;
+        const now = new Date();
+        // گرفتن زمان UTC فعلی
+        const nowUTC = Date.now();
+        const startUTC = START_DATE.getTime();
         
-        // اگر تاریخ هنوز به شروع نرسیده باشه، صفر نشون بده (فقط برای احتیاط)
+        let diffMs = nowUTC - startUTC;
         if (diffMs < 0) diffMs = 0;
         
         const totalSeconds = Math.floor(diffMs / 1000);
-        const totalHoursRaw = totalSeconds / 3600;
-        const totalHours = totalHoursRaw;
+        const totalHoursFloat = totalSeconds / 3600;
+        const totalHours = Math.floor(totalHoursFloat);
         
-        // محاسبه سال، هفته، روز، ساعت (بر اساس ساعت‌های کامل)
-        // سال ≈ 365.25 روز
-        const hoursInYear = 365.25 * 24;
-        const years = totalHours / hoursInYear;
+        // محاسبه سال (هر سال = 365.25 روز)
+        const hoursPerYear = 365.25 * 24;
+        const years = totalHoursFloat / hoursPerYear;
         const yearsFull = Math.floor(years);
         
-        const remainingHoursAfterYears = totalHours - (yearsFull * hoursInYear);
-        const weeks = remainingHoursAfterYears / (24 * 7);
+        const remainingHoursAfterYears = totalHoursFloat - (yearsFull * hoursPerYear);
+        const hoursPerWeek = 24 * 7;
+        const weeks = remainingHoursAfterYears / hoursPerWeek;
         const weeksFull = Math.floor(weeks);
         
-        const remainingHoursAfterWeeks = remainingHoursAfterYears - (weeksFull * 7 * 24);
+        const remainingHoursAfterWeeks = remainingHoursAfterYears - (weeksFull * hoursPerWeek);
         const days = remainingHoursAfterWeeks / 24;
         const daysFull = Math.floor(days);
         
         const hours = remainingHoursAfterWeeks - (daysFull * 24);
         const hoursFull = Math.floor(hours);
         
-        // نمایش
+        // نمایش اعداد
         document.getElementById('years').innerText = yearsFull;
         document.getElementById('weeks').innerText = weeksFull;
         document.getElementById('days').innerText = daysFull;
         document.getElementById('hours').innerText = hoursFull;
-        document.getElementById('totalHours').innerText = formatNumber(totalHours);
+        document.getElementById('totalHours').innerText = totalHours;
     }
     
     // بروزرسانی هر ثانیه
     updateCounter();
-    const interval = setInterval(updateCounter, 1000);
+    setInterval(updateCounter, 1000);
     
-    // دکمه رفرش دستی (در صورت نیاز)
-    document.getElementById('forceRefreshBtn').addEventListener('click', () => {
-        updateCounter();
-    });
-    
-    // پیام خیالش راحت که تایم شروع درسته (برای اطمینان در کنسول)
-    console.log("Counter started from: " + START_UTC.toISOString() + " (که برابر با ۱ می ۲۰۲۶ ساعت ۲۳:۰۰ IRST می‌باشد)");
+    // برای دیباگ در کنسول (اختیاری)
+    console.log("شمارشگر از تاریخ: " + START_DATE.toISOString() + " شروع شده");
 </script>
 </body>
 </html>
