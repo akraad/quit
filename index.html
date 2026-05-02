@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شمارشگر افتخار ترک سیگار</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: linear-gradient(145deg, #0a2f1f 0%, #071e12 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Tahoma', 'Vazir', system-ui, sans-serif;
+            padding: 1rem;
+        }
+        .card {
+            background: rgba(255,255,240,0.95);
+            border-radius: 3rem;
+            padding: 2rem 1.5rem 2rem 1.5rem;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.5);
+            text-align: center;
+            backdrop-filter: blur(2px);
+            transition: all 0.2s;
+        }
+        h1 {
+            color: #1e4a2f;
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            border-right: 5px solid #f4a261;
+            padding-right: 1rem;
+            display: inline-block;
+        }
+        .sub {
+            color: #2c6e3c;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            font-size: 1rem;
+            background: #e9f5e6;
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+        }
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+        .stat-box {
+            background: #fef9e6;
+            border-radius: 2rem;
+            padding: 1rem 0.5rem;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.08);
+            border-bottom: 4px solid #f4a261;
+        }
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1e3a2f;
+            line-height: 1.2;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+        .stat-label {
+            font-size: 0.85rem;
+            color: #5a4a2e;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+        .live-time {
+            background: #1e3a2f;
+            padding: 1rem;
+            border-radius: 2rem;
+            color: #f9e0a0;
+            margin: 1rem 0;
+        }
+        .live-time span {
+            font-size: 1.3rem;
+            font-weight: bold;
+            font-family: monospace;
+            background: #00000033;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            display: inline-block;
+        }
+        .quote {
+            margin-top: 1.5rem;
+            font-style: italic;
+            color: #5c6e4a;
+            background: #fff3db;
+            padding: 0.7rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+        }
+        footer {
+            font-size: 0.7rem;
+            margin-top: 1.5rem;
+            color: #6b4c2c;
+        }
+        @media (max-width: 450px) {
+            .stat-number { font-size: 1.5rem; }
+            .grid-stats { gap: 0.8rem; }
+            h1 { font-size: 1.2rem; }
+        }
+        .btn-reset {
+            background: none;
+            border: none;
+            font-size: 0.7rem;
+            color: #aa7a4a;
+            cursor: pointer;
+            margin-top: 10px;
+            text-decoration: underline;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🚭 قهرمانی بدون دود</h1>
+    <div class="sub">از ۱۱ شب ۱ می ۲۰۲۶ • به وقت ایران</div>
+
+    <div class="grid-stats" id="statsGrid">
+        <div class="stat-box"><div class="stat-number" id="years">۰</div><div class="stat-label">سال ترک</div></div>
+        <div class="stat-box"><div class="stat-number" id="weeks">۰</div><div class="stat-label">هفته</div></div>
+        <div class="stat-box"><div class="stat-number" id="days">۰</div><div class="stat-label">روز</div></div>
+        <div class="stat-box"><div class="stat-number" id="hours">۰</div><div class="stat-label">ساعت</div></div>
+    </div>
+
+    <div class="live-time">
+        🕊️ همین حالا گذشت: <span id="totalHours">۰</span> ساعت پاک زیستن
+    </div>
+    <div class="quote">
+        💪 ۱۳ سال سیگار کشیدی، اما از ۱ می ۲۰۲۶ هر ثانیه ریه‌هایت نفس آزادی می‌کشند.
+    </div>
+    <footer>
+        ⏱️ بروزرسانی لحظه‌ای | هر ساعت و روزی که می‌گذرد، بدنت قوی‌تر می‌شود
+        <button class="btn-reset" id="forceRefreshBtn" title="بروزرسانی دستی">↻</button>
+    </footer>
+</div>
+
+<script>
+    // تاریخ شروع: ۱ می ۲۰۲۶ - ساعت ۲۳:۰۰:۰۰ به وقت ایران (UTC+3:30)
+    // ایران در May 2026 ساعت رسمی UTC+3:30 (بدون تغییر فصلی در آن تاریخ فرض می‌کنیم)
+    // برای دقت، تایم استارت را به UTC تبدیل می‌کنیم:
+    //   May 1 2026, 23:00 IRST = 2026-05-01T19:30:00Z (چون IRST = UTC+3:30)
+    const START_UTC = new Date(Date.UTC(2026, 4, 1, 19, 30, 0));  // 4 = May (ماه در جاوااسکریپت از 0 شروع می‌شه)
+    
+    function formatNumber(num) {
+        return Math.floor(num);
+    }
+
+    function updateCounter() {
+        const now = new Date(); // زمان جاری دستگاه کاربر (محلی)
+        const nowUTC = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)); // تبدیل به UTC خام
+        // اختلاف بر حسب میلی‌ثانیه
+        let diffMs = nowUTC - START_UTC;
+        
+        // اگر تاریخ هنوز به شروع نرسیده باشه، صفر نشون بده (فقط برای احتیاط)
+        if (diffMs < 0) diffMs = 0;
+        
+        const totalSeconds = Math.floor(diffMs / 1000);
+        const totalHoursRaw = totalSeconds / 3600;
+        const totalHours = totalHoursRaw;
+        
+        // محاسبه سال، هفته، روز، ساعت (بر اساس ساعت‌های کامل)
+        // سال ≈ 365.25 روز
+        const hoursInYear = 365.25 * 24;
+        const years = totalHours / hoursInYear;
+        const yearsFull = Math.floor(years);
+        
+        const remainingHoursAfterYears = totalHours - (yearsFull * hoursInYear);
+        const weeks = remainingHoursAfterYears / (24 * 7);
+        const weeksFull = Math.floor(weeks);
+        
+        const remainingHoursAfterWeeks = remainingHoursAfterYears - (weeksFull * 7 * 24);
+        const days = remainingHoursAfterWeeks / 24;
+        const daysFull = Math.floor(days);
+        
+        const hours = remainingHoursAfterWeeks - (daysFull * 24);
+        const hoursFull = Math.floor(hours);
+        
+        // نمایش
+        document.getElementById('years').innerText = yearsFull;
+        document.getElementById('weeks').innerText = weeksFull;
+        document.getElementById('days').innerText = daysFull;
+        document.getElementById('hours').innerText = hoursFull;
+        document.getElementById('totalHours').innerText = formatNumber(totalHours);
+    }
+    
+    // بروزرسانی هر ثانیه
+    updateCounter();
+    const interval = setInterval(updateCounter, 1000);
+    
+    // دکمه رفرش دستی (در صورت نیاز)
+    document.getElementById('forceRefreshBtn').addEventListener('click', () => {
+        updateCounter();
+    });
+    
+    // پیام خیالش راحت که تایم شروع درسته (برای اطمینان در کنسول)
+    console.log("Counter started from: " + START_UTC.toISOString() + " (که برابر با ۱ می ۲۰۲۶ ساعت ۲۳:۰۰ IRST می‌باشد)");
+</script>
+</body>
+</html>
